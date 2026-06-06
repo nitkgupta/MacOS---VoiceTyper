@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- App runs as agent (menu bar only, no dock icon) -->
+    <key>LSUIElement</key>
+    <true/>
+
+    <!-- Bundle info -->
+    <key>CFBundleName</key>
+    <string>VoiceTyper</string>
+    <key>CFBundleDisplayName</key>
+    <string>VoiceTyper</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleVersion</key>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(MARKETING_VERSION)</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <!-- Minimum macOS version -->
+    <key>LSMinimumSystemVersion</key>
+    <string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+
+    <!-- Privacy: Microphone access -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>VoiceTyper needs microphone access to transcribe your speech into text. All processing happens locally on your Mac.</string>
+
+    <!-- Privacy: Speech recognition (for Apple Speech fallback) -->
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>VoiceTyper uses on-device speech recognition as a fallback when the Whisper model is unavailable. No data leaves your Mac.</string>
+
+    <!-- App Transport Security: block all network by default -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+        <!-- Only exception: Hugging Face for model download -->
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>huggingface.co</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <false/>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+                <key>NSTemporaryExceptionRequiresForwardSecrecy</key>
+                <true/>
+            </dict>
+        </dict>
+    </dict>
+
+    <!-- Principal class -->
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+</dict>
+</plist>
