@@ -84,6 +84,10 @@ final class VoiceTyperManager {
         self.appState = appState
     }
 
+    /// Timer that polls for Accessibility permission to be granted,
+    /// so the hotkey monitor can be restarted without relaunching.
+    private var accessibilityPollTimer: Timer?
+
     // MARK: - Public API
 
     /// Starts the VoiceTyper system.
@@ -111,14 +115,53 @@ final class VoiceTyperManager {
         monitor.start()
         self.hotkeyMonitor = monitor
 
+        // If the event tap failed (no Accessibility permission yet),
+        // start a polling timer to retry once permission is granted.
+        if monitor.needsRestart {
+            startAccessibilityPolling()
+        }
+
         // Create the overlay controller.
         self.overlayController = OverlayWindowController(appState: appState)
 
         appState.currentState = .idle
     }
 
+    // MARK: - Accessibility Polling
+
+    /// Starts a repeating timer that checks whether Accessibility
+    /// permission has been granted. Once granted, restarts the hotkey
+    /// monitor's event tap and stops polling.
+    private func startAccessibilityPolling() {
+        // Invalidate any existing timer first.
+        accessibilityPollTimer?.invalidate()
+
+        accessibilityPollTimer = Timer.scheduledTimer(
+            withTimeInterval: 2.0,
+            repeats: true
+        ) { [weak self] timer in
+            Task { @MainActor in
+                guard let self else {
+                    timer.invalidate()
+                    return
+                }
+                self.hotkeyMonitor?.restartIfNeeded()
+
+                // If the monitor is now running, stop polling.
+                if self.hotkeyMonitor?.isRunning == true {
+                    timer.invalidate()
+                    self.accessibilityPollTimer = nil
+                    print("[VoiceTyperManager] ✅ Hotkey monitor started successfully after permission grant.")
+                }
+            }
+        }
+    }
+
     /// Stops the VoiceTyper system and releases all resources.
     func stop() {
+        accessibilityPollTimer?.invalidate()
+        accessibilityPollTimer = nil
+
         hotkeyMonitor?.stop()
         hotkeyMonitor = nil
 
@@ -140,19 +183,16 @@ final class VoiceTyperManager {
     /// and user preferences.
     ///
     /// Priority:
-    /// 1. If user explicitly chose Apple Speech → AppleSpeechEngine.
-    /// 2. If Whisper model is downloaded → WhisperEngine.
-    /// 3. Otherwise → AppleSpeechEngine as fallback.
+    /// 1. If Whisper model is downloaded (and user hasn't forced Apple
+    ///    Speech) → WhisperEngine.
+    /// 2. Otherwise → AppleSpeechEngine as fallback.
     private func selectEngine() {
-        if appState.useAppleSpeechFallback {
-            transcriptionEngine = AppleSpeechEngine()
-            return
-        }
-
-        if appState.isModelDownloaded, let modelPath = appState.modelFilePath {
+        if !appState.useAppleSpeechFallback,
+           appState.isModelDownloaded,
+           let modelPath = appState.modelFilePath {
             transcriptionEngine = WhisperEngine(modelPath: modelPath.path)
         } else {
-            // Whisper model not available — fall back to Apple Speech.
+            // Whisper model not available or user prefers Apple Speech.
             transcriptionEngine = AppleSpeechEngine()
         }
     }
@@ -168,6 +208,10 @@ final class VoiceTyperManager {
               appState.currentState == .idle else {
             return
         }
+
+        // Re-select engine each session so that model downloads or
+        // setting changes take effect without requiring an app restart.
+        selectEngine()
 
         appState.currentState = .recording
         appState.partialTranscription = ""

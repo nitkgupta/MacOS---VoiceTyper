@@ -209,7 +209,10 @@ final class TextInserter: @unchecked Sendable {
 
     /// Inserts `text` by temporarily placing it on the pasteboard and
     /// simulating a Cmd+V keystroke. The original pasteboard contents are
-    /// restored after a 500 ms delay.
+    /// restored after a delay.
+    ///
+    /// Uses `.cghidEventTap` for event posting, which works reliably
+    /// across all applications including Terminal.app.
     private func insertViaClipboard(_ text: String) {
         let pasteboard = NSPasteboard.general
 
@@ -220,13 +223,16 @@ final class TextInserter: @unchecked Sendable {
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
 
-        // 3. Simulate Cmd+V with a slight delay to allow the pasteboard server to sync,
-        // which is often necessary for Terminal apps.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+        // 3. Simulate Cmd+V with a delay to allow the pasteboard server
+        //    to sync. Terminal and some other apps need extra time to
+        //    pick up pasteboard changes.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.simulatePaste()
 
-            // 4. Restore original clipboard after the paste has had time to process.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            // 4. Restore original clipboard after the paste has had
+            //    time to process. Use a longer delay to be safe across
+            //    all apps (Terminal can be slow).
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.restorePasteboardContents(pasteboard, items: savedItems)
             }
         }
@@ -277,6 +283,8 @@ final class TextInserter: @unchecked Sendable {
     ///
     /// Creates a key-down and key-up pair for the 'V' key with the
     /// `.maskCommand` flag set, then posts them to the HID event tap.
+    /// Using `.cghidEventTap` ensures the event reaches all apps
+    /// including Terminal.app.
     private func simulatePaste() {
         // Virtual key code for 'v' is 9 (from Carbon HIToolbox).
         let vKeyCode: CGKeyCode = CGKeyCode(kVK_ANSI_V)
@@ -300,8 +308,10 @@ final class TextInserter: @unchecked Sendable {
         ) else { return }
         keyUp.flags = .maskCommand
 
-        // Post events to the session event tap so they reach the focused app reliably.
-        keyDown.post(tap: .cgAnnotatedSessionEventTap)
-        keyUp.post(tap: .cgAnnotatedSessionEventTap)
+        // Post events to the HID event tap — this is the most reliable
+        // tap point and works with Terminal.app and other apps that
+        // ignore session-level event taps.
+        keyDown.post(tap: .cghidEventTap)
+        keyUp.post(tap: .cghidEventTap)
     }
 }

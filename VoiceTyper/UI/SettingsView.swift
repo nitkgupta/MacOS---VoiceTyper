@@ -32,6 +32,7 @@ struct SettingsView: View {
     /// Local error alert state for Launch-at-Login failures.
     @State private var showLoginError = false
     @State private var loginErrorMessage = ""
+    @State private var delayValue: Double = 0
 
     // ── Body ─────────────────────────────────────
 
@@ -113,6 +114,7 @@ struct SettingsView: View {
                     }
                 )
             )
+            .frame(maxWidth: .infinity)
 
             Divider().opacity(0.2)
 
@@ -129,6 +131,7 @@ struct SettingsView: View {
                     }
                 )
             )
+            .frame(maxWidth: .infinity)
 
             Divider().opacity(0.2)
 
@@ -143,6 +146,7 @@ struct SettingsView: View {
                     set: { appState.showLivePreview = $0 }
                 )
             )
+            .frame(maxWidth: .infinity)
 
             Divider().opacity(0.2)
 
@@ -157,6 +161,7 @@ struct SettingsView: View {
                     set: { appState.playSoundEffects = $0 }
                 )
             )
+            .frame(maxWidth: .infinity)
         }
     }
 
@@ -166,12 +171,12 @@ struct SettingsView: View {
 
     private var recognitionSection: some View {
         SettingsSectionContainer(title: "Recognition") {
-            // Apple Speech Fallback
+            // Use Apple Speech Only
             SettingsToggleRow(
                 icon: "apple.logo",
                 iconColor: .secondary,
-                title: "Apple Speech Fallback",
-                subtitle: "Use when Whisper is unavailable",
+                title: "Use Apple Speech Only",
+                subtitle: "Override Whisper with Apple's engine",
                 isOn: Binding(
                     get: { appState.useAppleSpeechFallback },
                     set: { appState.useAppleSpeechFallback = $0 }
@@ -192,18 +197,19 @@ struct SettingsView: View {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                }
-
-                Picker("", selection: Binding(
-                    get: { appState.selectedLanguage },
-                    set: { appState.selectedLanguage = $0 }
-                )) {
-                    ForEach(TranscriptionLanguage.allCases) { language in
-                        Text(language.rawValue).tag(language.rawValue)
+                    Spacer()
+                    
+                    Picker("", selection: Binding(
+                        get: { appState.selectedLanguage },
+                        set: { appState.selectedLanguage = $0 }
+                    )) {
+                        ForEach(TranscriptionLanguage.allCases) { language in
+                            Text(language.rawValue).tag(language.rawValue)
+                        }
                     }
+                    .pickerStyle(.automatic)
+                    .labelsHidden()
                 }
-                .pickerStyle(.menu)
-                .labelsHidden()
             }
 
             Divider().opacity(0.2)
@@ -223,7 +229,7 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Text(String(format: "%.1fs", appState.holdThreshold))
+                    Text(String(format: "%.1fs", delayValue))
                         .font(.system(.caption, design: .monospaced, weight: .bold))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 6)
@@ -233,17 +239,14 @@ struct SettingsView: View {
                                 .fill(Color.primary.opacity(0.06))
                         )
                 }
-
-                Stepper(
-                    value: Binding(
-                        get: { appState.holdThreshold },
-                        set: { appState.holdThreshold = $0 }
-                    ),
-                    in: 0.5 ... 3.0,
-                    step: 0.1
-                ) {
-                    EmptyView()
-                }
+                Slider(value: $delayValue,
+                       in: 0.2...3.0)
+            }
+            .onAppear {
+                delayValue = appState.holdThreshold
+            }
+            .onChange(of: delayValue) { _, newValue in
+                appState.holdThreshold = delayValue
             }
         }
     }
@@ -322,7 +325,7 @@ struct SettingsView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "arrow.down.to.line")
                         .font(.system(size: 11))
-                    Text("Download Model (~150 MB)")
+                    Text("Download Model (~\(appState.modelFileSizeFormatted))")
                         .font(.system(.caption, weight: .medium))
                 }
                 .frame(maxWidth: .infinity)
@@ -486,6 +489,7 @@ struct SettingsToggleRow: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
+                Spacer()
             }
         }
         .toggleStyle(.switch)
@@ -499,3 +503,4 @@ struct SettingsToggleRow: View {
     SettingsView(appState: AppState())
         .frame(width: 320, height: 520)
 }
+

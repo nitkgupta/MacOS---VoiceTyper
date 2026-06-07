@@ -62,7 +62,7 @@ final class HotkeyMonitor {
     /// triggers. Clamped to [0.3, 5.0] on set.
     var holdThreshold: TimeInterval {
         didSet {
-            holdThreshold = min(max(holdThreshold, 0.3), 5.0)
+            holdThreshold = min(max(holdThreshold, 0.2), 5.0)
         }
     }
 
@@ -96,8 +96,8 @@ final class HotkeyMonitor {
     ///
     /// - Parameter holdThreshold: Seconds the Option key must be held
     ///   before activation. Default is 2.0. Clamped to [0.3, 5.0].
-    init(holdThreshold: TimeInterval = 2.0) {
-        self.holdThreshold = min(max(holdThreshold, 0.3), 5.0)
+    init(holdThreshold: TimeInterval = 0.3) {
+        self.holdThreshold = min(max(holdThreshold, 0.2), 5.0)
     }
 
     deinit {
@@ -134,6 +134,11 @@ final class HotkeyMonitor {
 
     // MARK: - Start / Stop
 
+    /// Whether `start()` was called but the event tap failed to install
+    /// (typically because Accessibility permission was not yet granted).
+    /// When `true`, `restartIfNeeded()` will retry installation.
+    private(set) var needsRestart: Bool = false
+
     /// Installs the CGEventTap and begins monitoring Option key events.
     ///
     /// If Accessibility access has not been granted, this method prints
@@ -168,9 +173,12 @@ final class HotkeyMonitor {
             userInfo: selfPointer
         ) else {
             print("[HotkeyMonitor] ❌ Failed to create CGEventTap. Check Accessibility permissions.")
+            // Mark that we need to retry once permission is granted.
+            needsRestart = true
             return
         }
 
+        needsRestart = false
         eventTapPort = port
 
         // Wrap the mach port in a run loop source and add it to the
@@ -183,6 +191,23 @@ final class HotkeyMonitor {
         CGEvent.tapEnable(tap: port, enable: true)
 
         isRunning = true
+    }
+
+    /// Retries event tap installation if the initial `start()` failed
+    /// due to missing Accessibility permission.
+    ///
+    /// Call this periodically (e.g. from a timer) after the user has
+    /// been prompted for Accessibility access. Once the tap installs
+    /// successfully, `needsRestart` becomes `false` and further calls
+    /// are no-ops.
+    func restartIfNeeded() {
+        guard needsRestart, !isRunning else { return }
+
+        // Only retry if permission has actually been granted now.
+        guard Self.isAccessibilityTrusted() else { return }
+
+        print("[HotkeyMonitor] ✅ Accessibility permission granted. Retrying event tap installation.")
+        start()
     }
 
     /// Removes the CGEventTap and stops monitoring.
@@ -212,6 +237,7 @@ final class HotkeyMonitor {
         // Reset transient state.
         isRecordingActive = false
         optionDownTimestamp = nil
+        needsRestart = false
         isRunning = false
     }
 

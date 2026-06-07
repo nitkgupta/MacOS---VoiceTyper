@@ -9,13 +9,18 @@
 /* Begin PBXBuildFile section */
 		023267923AAD63A4AADB7C31 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F69CABB0C137894C51D496 /* AppState.swift */; };
 		0CE25AAA6680D230AE1B4F25 /* VoiceTyperApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 530DA32F7E712ADEC9DEC20F /* VoiceTyperApp.swift */; };
+		168916883178E5427978D646 /* SwiftWhisper in Frameworks */ = {isa = PBXBuildFile; productRef = 9678ECAEED93228F2D94600D /* SwiftWhisper */; };
 		21C37806F8EB460D586EBCE3 /* AppleSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7159866351C2B748DF320EB2 /* AppleSpeechEngine.swift */; };
+		249B0C576EA4466A2C37628A /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		4A9F0BBB751ACF5B8FBACCBF /* HotkeyMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CC4744E41479B64202E3A8 /* HotkeyMonitor.swift */; };
+		5C11833307C8DC9028059203 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		64566DBE488D0A92CF87DF1A /* TranscriptionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC3359BD0951941D5207550 /* TranscriptionOverlay.swift */; };
 		6555896A0CA167F2ECB486A9 /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACDFEEC5EF32A7E6E96D27BA /* PopoverView.swift */; };
 		6A02352EAB09E12CF9B4CBF9 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D03D72E52C1991772BB5B0B /* StatusBarController.swift */; };
 		6F418B52448B27D7081ACC86 /* TextInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B4CE9192202F64B6CC18CF /* TextInserter.swift */; };
 		832CD70EFEE85A31DA8425B8 /* WhisperEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A4C753E49FD0FE50819545 /* WhisperEngine.swift */; };
+		8F3E1119425923D1C24FBC1C /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		9949C3A03B9E51F10008D975 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		D3618C2AC9AD6986BEB4F72C /* AudioEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4457DD8CDD5B0B3DD0829790 /* AudioEngine.swift */; };
 		DCE260A708408579FF62042D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D4CCCC93E12C7CEBD927AD /* SettingsView.swift */; };
 		E3471293D04F7D3881E272FE /* VoiceTyperManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8262BD3B4FB2EFCDB553C1 /* VoiceTyperManager.swift */; };
@@ -41,6 +46,21 @@
 		E1B4CE9192202F64B6CC18CF /* TextInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInserter.swift; sourceTree = "<group>"; };
 		F3D4CCCC93E12C7CEBD927AD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CA10C0700CF0363A6AC4EE73 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F3E1119425923D1C24FBC1C /* BuildFile in Frameworks */,
+				5C11833307C8DC9028059203 /* BuildFile in Frameworks */,
+				9949C3A03B9E51F10008D975 /* BuildFile in Frameworks */,
+				249B0C576EA4466A2C37628A /* BuildFile in Frameworks */,
+				168916883178E5427978D646 /* SwiftWhisper in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		18B89F804DC8B7633D4D45CF /* Core */ = {
@@ -139,6 +159,7 @@
 			buildPhases = (
 				DBFD0C7A4034C0E5048D7DFD /* Sources */,
 				4F308565B33ADA2A3A883808 /* Resources */,
+				CA10C0700CF0363A6AC4EE73 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -146,6 +167,7 @@
 			);
 			name = VoiceTyper;
 			packageProductDependencies = (
+				9678ECAEED93228F2D94600D /* SwiftWhisper */,
 			);
 			productName = VoiceTyper;
 			productReference = 044C757ACBDCD8DED388F115 /* VoiceTyper.app */;
@@ -171,6 +193,9 @@
 			);
 			mainGroup = DB605D4DB548641FEC8B924A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1346BEC1CF59E4B2D0A570F4 /* XCRemoteSwiftPackageReference "SwiftWhisper" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2CC94F1E9010E591F9008360 /* Products */;
 			projectDirPath = "";
@@ -260,7 +285,11 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited) GGML_USE_METAL=1 GGML_USE_ACCELERATE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"GGML_USE_METAL=1",
+					"GGML_USE_ACCELERATE=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -269,13 +298,27 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = VoiceTyper/Resources/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "$(inherited) -DGGML_USE_METAL=1 -DWHISPER_USE_COREML=0 -DGGML_USE_ACCELERATE=1";
-				OTHER_CPLUSPLUSFLAGS = "$(inherited) -DGGML_USE_METAL=1 -DWHISPER_USE_COREML=0 -DGGML_USE_ACCELERATE=1 -std=c++17";
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DGGML_USE_METAL=1",
+					"-DWHISPER_USE_COREML=0",
+					"-DGGML_USE_ACCELERATE=1",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(inherited)",
+					"-DGGML_USE_METAL=1",
+					"-DWHISPER_USE_COREML=0",
+					"-DGGML_USE_ACCELERATE=1",
+					"-std=c++17",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voicetyper.app;
 				PRODUCT_NAME = VoiceTyper;
 				SDKROOT = macosx;
@@ -365,7 +408,11 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited) GGML_USE_METAL=1 GGML_USE_ACCELERATE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"GGML_USE_METAL=1",
+					"GGML_USE_ACCELERATE=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -374,14 +421,28 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = VoiceTyper/Resources/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = "$(inherited) -DGGML_USE_METAL=1 -DWHISPER_USE_COREML=0 -DGGML_USE_ACCELERATE=1";
-				OTHER_CPLUSPLUSFLAGS = "$(inherited) -DGGML_USE_METAL=1 -DWHISPER_USE_COREML=0 -DGGML_USE_ACCELERATE=1 -std=c++17";
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DGGML_USE_METAL=1",
+					"-DWHISPER_USE_COREML=0",
+					"-DGGML_USE_ACCELERATE=1",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(inherited)",
+					"-DGGML_USE_METAL=1",
+					"-DWHISPER_USE_COREML=0",
+					"-DGGML_USE_ACCELERATE=1",
+					"-std=c++17",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voicetyper.app;
 				PRODUCT_NAME = VoiceTyper;
 				SDKROOT = macosx;
@@ -414,6 +475,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1346BEC1CF59E4B2D0A570F4 /* XCRemoteSwiftPackageReference "SwiftWhisper" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exPHAT/SwiftWhisper.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9678ECAEED93228F2D94600D /* SwiftWhisper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1346BEC1CF59E4B2D0A570F4 /* XCRemoteSwiftPackageReference "SwiftWhisper" */;
+			productName = SwiftWhisper;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CEC597132346D1848147092A /* Project object */;
 }

@@ -285,6 +285,7 @@ struct PopoverView: View {
                 languageBadge
                 Spacer()
             }
+            .frame(maxWidth: .infinity)
         }
     }
 
